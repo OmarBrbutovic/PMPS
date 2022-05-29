@@ -1,14 +1,17 @@
 # Binaries will be generated with this name (.elf, .bin, .hex, etc)
-PROJ_NAME=main
+PROJ_NAME=PMPS
 
 # Put your STM32F4 library code directory here
-STM_COMMON=../sdk/
-STM32CUBEPROG:= ../stmcubeprog/bin/STM32_Programmer.sh -vb 1 -q -c port=SWD 
+STM_COMMON=../sdk
+STM32CUBEPROG:=../stmcubeprog/bin/STM32_Programmer.sh -vb 1 -q -c port=SWD 
 
 # Put your source files here (or *.c, etc)
 SRCS = main.c 
 SRCS += system_stm32f4xx.c stm32f4xx_it.c
-
+SRCS += usart.c misc.c
+SRCS += delay.c
+SRCS += adc.c
+SRCS += pwm.c
 
 # HAL Driver
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c 
@@ -23,6 +26,8 @@ SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_usart.c
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c 
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c 
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c 
+SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c 
+SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c 
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c 
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c 
 SRCS += $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c 
@@ -48,6 +53,10 @@ CFLAGS += -I $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Inc
 CFLAGS += -I $(STM_COMMON)/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
 CFLAGS += -I $(STM_COMMON)/Drivers/CMSIS/Include 
 CFLAGS += -I $(STM_COMMON)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+#CFLAGS += -I$(STM_COMMON)/Utilities/STM32F4-Discovery
+#CFLAGS += -I$(STM_COMMON)/Libraries/CMSIS/Include 
+#CFLAGS += -I$(STM_COMMON)/Libraries/CMSIS/ST/STM32F4xx/Include
+#CFLAGS += -I$(STM_COMMON)/Libraries/STM32F4xx_StdPeriph_Driver/inc
 
 # add startup file to build
 SRCS += $(STM_COMMON)/Drivers/startup_stm32f4xx.s
@@ -66,6 +75,8 @@ $(PROJ_NAME).elf: $(SRCS)
 	$(SIZE) -B  $(PROJ_NAME).elf
 	rm -rf *.o *.s
 	ls -l $(PROJ_NAME).bin
+
+
 
 clean:
 	rm -rf *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin *.s

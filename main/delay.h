@@ -2,14 +2,18 @@
 #define __DELAY_H
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_hal.h"
+#include "usart.h"
 
  
+#define SYSTIM_KEEP_ALIVE			0
+#define SYSTIM_TIMEOUT				1
 void 		delay_ms(uint32_t ms);															
 void 		delay_us(uint32_t ms);				
-void 		delay_11ns(uint16_t ns);			
 
-void 		initStopwatch(void);										// call this function to start time measurement
-uint32_t	stopStopwatch(void);										// call this function to stop time measurement and 
-																		// to receive elapsed time
+void initSYSTIM(void);
+void deinitSYSTIM(void);
+uint32_t getSYSTIM(void);
+uint8_t chk4TimeoutSYSTIM(uint32_t btime, uint32_t period);
 
 #endif 
