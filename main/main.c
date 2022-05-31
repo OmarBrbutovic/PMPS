@@ -27,9 +27,10 @@ PE2 - LED Red
 void delay_ms_soft(uint32_t ms);
 void Init();
 void HCSR04();
+void Relay();
 void WaterLevel();
 void isEmpty();
-
+void isOff();
 
 /* Variables */
 volatile uint32_t counter;
@@ -59,12 +60,12 @@ int main(void)
 
 		if (buttonState)
 		{
-			printUSART2("OFF \n");
-			delay_ms_soft(1000);
+			isOff();
 		}
 		else
 		{
 			HCSR04();
+			Relay();
 			WaterLevel();
 		}
 	}
@@ -146,9 +147,21 @@ void HCSR04()
 
 	delay_ms(100);
 	printUSART2("-> Distance [%d]  \n", distance);
-
-
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, 1);
+}
+
+void Relay()
+{
+	if (distance <= 10)
+	{
+		printUSART2("-> Aktivira pumpu \n");
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, 0);
+		delay_ms_soft(1000);
+
+		printUSART2(" \n -> Blokira pumpu \n");
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, 1);
+		delay_ms_soft(3000);
+	}
 }
 
 void WaterLevel()
@@ -156,6 +169,8 @@ void WaterLevel()
 	adc_value = getADC();
 	nivo = (adc_value * 3000) / 4095;
 	printUSART2("-> ADC: Value V[%d]\n", nivo);
+
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 0x01);
 
 	if (nivo >= 2000)
 	{
@@ -187,8 +202,16 @@ void isEmpty()
 	{
 		printUSART2("Do nothing is empty \n");
 		delay_ms_soft(100);
+		// ili da se pozove isOFF
 		WaterLevel();
 	}
 }
 
-
+void isOff()
+{
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, 0x00);
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 0x00);
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0x01);
+	printUSART2("OFF \n");
+	delay_ms_soft(300);
+}
