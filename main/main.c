@@ -24,7 +24,6 @@ PE2 - LED Red
 //#include "pwm.h"
 
 /* Functions declarations */
-void delay_ms_soft(uint32_t ms);
 void Init();
 void HCSR04();
 void Relay();
@@ -55,7 +54,7 @@ int main(void)
 		{
 			printUSART2("Button pressed \n");
 			buttonState = !buttonState;
-			delay_ms_soft(100);
+			delay_ms(100);
 		}
 
 		if (buttonState)
@@ -72,12 +71,6 @@ int main(void)
 }
 
 // Function implementation **************************************************************
-void delay_ms_soft(uint32_t ms)
-{
-	volatile uint32_t k = 10500 * ms;
-	while (k--)
-		;
-}
 
 void Init()
 {
@@ -86,6 +79,7 @@ void Init()
 	initUSART2(921600);
 	initADC1();
 	// initSYSTIM();
+	// initPWM();
 
 	// initialize output PD12 Trigger HCSR-04
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -147,7 +141,6 @@ void HCSR04()
 
 	delay_ms(100);
 	printUSART2("-> Distance [%d]  \n", distance);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, 1);
 }
 
 void Relay()
@@ -156,11 +149,11 @@ void Relay()
 	{
 		printUSART2("-> Aktivira pumpu \n");
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, 0);
-		delay_ms_soft(1000);
+		delay_ms(1000);
 
 		printUSART2(" \n -> Blokira pumpu \n");
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, 1);
-		delay_ms_soft(3000);
+		delay_ms(2000);
 	}
 }
 
@@ -179,14 +172,14 @@ void WaterLevel()
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0x00);
 		printUSART2("Green \n");
 	}
-	if (nivo < 1900 && nivo >= 1000)
+	else if (nivo < 1900 && nivo >= 1000)
 	{
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, 0x00);
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 0x01);
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0x00);
 		printUSART2("Yellow \n");
 	}
-	if (nivo < 900)
+	else if (nivo < 900)
 	{
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, 0x00);
 		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 0x00);
@@ -201,8 +194,7 @@ void isEmpty()
 	while (nivo <= 300)
 	{
 		printUSART2("Do nothing is empty \n");
-		delay_ms_soft(100);
-		// ili da se pozove isOFF
+		delay_ms(100);
 		WaterLevel();
 	}
 }
@@ -213,5 +205,5 @@ void isOff()
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 0x00);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0x01);
 	printUSART2("OFF \n");
-	delay_ms_soft(300);
+	delay_ms(300);
 }
